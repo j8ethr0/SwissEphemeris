@@ -1,22 +1,24 @@
-//
-//  LunarSouthNode.swift
-//  
-//
-//  Created by Vincent Smithers on 6/4/22.
-//
-
 import Foundation
+import CSwissEphemeris
 
 /// Maps the Moon's south node to the zodiacs.
-public struct LunarSouthNode: ZodiacMappable {
-	
-	public let tropical: ZodiacCoordinate
-	public let sidereal: ZodiacCoordinate
-	
-	/// Creates a `LunarSouthNode`.
-	/// - Parameter nodeCoordinate: The north lunar node coordinate.
-	public init(nodeCoordinate: Coordinate<LunarNorthNode>) {
-		tropical = ZodiacCoordinate(value: nodeCoordinate.longitude, offset: 180.0)
-		sidereal = ZodiacCoordinate(value: nodeCoordinate.longitude, offset: 180.0 +  Ayanamsha()(for: nodeCoordinate.date))
-	}
+public enum LunarSouthNode: Int32, CaseIterable, Hashable { //MAKE ENUM
+    case meanNode = 10
+    case trueNode
+
+    public init(nodeCoordinate: Coordinate) { //KEEP FOR REFERENCE
+        let val = nodeCoordinate.longitude + 180
+        if val >= 360 {
+            self = .trueNode // Dummy values
+        } else {
+            self = .meanNode// Dummy values
+        }
+    }
+}
+
+//MARK: Celestial body
+extension LunarSouthNode: CelestialBody{
+    public var ipl: Int32 {
+        rawValue + 1
+    }
 }
