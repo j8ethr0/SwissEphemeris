@@ -2,7 +2,7 @@ import Foundation
 import CSwissEphemeris
 
 /// Maps the Moon's south node to the zodiacs.
-public enum LunarSouthNode: Int32, CaseIterable, Hashable { //MAKE ENUM
+public enum LunarSouthNode: Int32, CaseIterable, Hashable, CelestialBody { //MAKE ENUM
     case meanNode = 10
     case trueNode
 
@@ -14,11 +14,9 @@ public enum LunarSouthNode: Int32, CaseIterable, Hashable { //MAKE ENUM
             self = .meanNode// Dummy values
         }
     }
-}
 
-//MARK: Celestial body
-extension LunarSouthNode: CelestialBody{
-    public var ipl: Int32 {
+    public var ipl: Int32 { //CELESTIAL BODY
         rawValue + 1
     }
+     public var name: String { "Lunar South Node" } //ADD NAME
 }
