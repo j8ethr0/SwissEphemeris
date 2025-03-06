@@ -1,33 +1,50 @@
-//
 //  Date+JulianDate.swift
-//  
+//  SwissEphemeris
 //
-//  07.12.19.
+//  Created by Vincent Smithers on 13.04.20.
 //
 
 import Foundation
-
 import CSwissEphemeris
 
-public extension Date {
-    /// Returns a Julian date number from a `Date`
-    /// Julian date format seems to be the preferred format for the ephemeris
-    func julianDate() -> Double {
-        let julianDateJan11970000GMT = 2440587.5
-        return julianDateJan11970000GMT + timeIntervalSince1970 / 86400
+extension Date {
+    /// The Julian day number for a date.
+    /// https://en.wikipedia.org/wiki/Julian_day
+    public func julianDate() -> Double {
+        let calendar = Calendar(identifier: .gregorian)
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: self)
+        guard let year = components.year,
+              let month = components.month,
+              let day = components.day,
+              let hour = components.hour,
+              let minute = components.minute
+        else {
+            return 0
+        }
+        let second: Double = Double(components.second ?? 0)
+        let UT = Double(hour) + Double(minute)/60 + second/3600
+        let jd = swe_julday(Int32(year), Int32(month), Int32(day), UT, Int32(SE_GREG_CAL)) // Corrected call
+        return jd
     }
 
-	init(julianDate: Double) {
-		let julianDateJan11970000GMT = 2440587.5
-		self = Date(timeIntervalSince1970: (julianDate - julianDateJan11970000GMT) * 86400)
-	}
-	
-	func julianCalendarDate() -> Double {
-		let components = Calendar.current.dateComponents([.year, .month, .day, .hour], from: self)
-		guard let year = components.year,
-			  let month = components.month,
-			  let day = components.day,
-			  let hour = components.hour else { return .zero}
-		return swe_julday(Int32(year), Int32(month), Int32(day), Double(hour), SE_GREG_CAL);
-	}
+    public init(julianDay: Double) {
+        var year: Int32 = 0
+        var month: Int32 = 0
+        var day: Int32 = 0
+        var hour: Double = 0
+
+        swe_revjul(julianDay, Int32(SE_GREG_CAL) , &year, &month, &day, &hour) //correct
+
+        var comps = DateComponents()
+        comps.year = Int(year)
+        comps.month = Int(month)
+        comps.day = Int(day)
+        comps.hour = Int(hour)
+        comps.minute = Int((hour - Double(Int(hour))) * 60)
+        comps.second = Int((((hour - Double(Int(hour))) * 60) - Double(comps.minute!)) * 60)
+
+        //this could return nil, so use the current date if it does:
+        self = Calendar.current.date(from: comps) ?? Date()
+
+    }
 }

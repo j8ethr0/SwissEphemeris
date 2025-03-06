@@ -3,10 +3,10 @@ import CSwissEphemeris
 
 
 /// Models a `CelestialBody` point in the sky.
-public struct Coordinate: ZodiacMappable {
+public struct Coordinate<T: CelestialBody>: ZodiacMappable {
 
     /// The type of `CelestialBody`.
-    public let body: any CelestialBody //REMOVE GENERICS
+    public let body: T //keep this
     /// The date of the the coordinate.
     public let date: Date
     /// The coordinate's longitude.
@@ -37,11 +37,11 @@ public struct Coordinate: ZodiacMappable {
     /// - Parameters:
     ///   - body: The `CelestialBody` for the placement.
     ///   - date: The date for the location of the coordinate.
-    public init(body: any CelestialBody, date: Date) { //REMOVED GENERICS
+    public init(body: T, date: Date) {
         defer {
             pointer.deinitialize(count: 6)
             pointer.deallocate()
-            if let star = body as? FixedStar {
+            if let star = body as? FixedStar { //needed for fixed star
                 charPointer.deinitialize(count: star.rawValue.count)
                 charPointer.deallocate()
             }
@@ -50,16 +50,16 @@ public struct Coordinate: ZodiacMappable {
         self.date = date
 
         switch body {
-        case let planet as Planet:
+        case let planet as Planet: //handle as planet
             pointer.initialize(repeating: 0, count: 6)
             swe_calc_ut(date.julianDate(), planet.ipl, SEFLG_SPEED, pointer, nil)
-        case let node as LunarNorthNode:
+        case let node as LunarNorthNode: //handle north node
             pointer.initialize(repeating: 0, count: 6)
             swe_calc_ut(date.julianDate(), node.ipl, SEFLG_SPEED, pointer, nil)
-        case let node as LunarSouthNode:
+        case let node as LunarSouthNode://handle south node
             pointer.initialize(repeating: 0, count: 6)
             swe_calc_ut(date.julianDate(), node.ipl, SEFLG_SPEED, pointer, nil)
-        case let star as FixedStar:
+        case let star as FixedStar: //handle fixed star
             charPointer.initialize(from: star.rawValue, count: star.rawValue.count)
             charPointer = strdup(star.rawValue)
             swe_fixstar2(charPointer, date.julianDate(), SEFLG_SPEED, pointer, nil)
@@ -83,7 +83,7 @@ public struct Coordinate: ZodiacMappable {
 extension Coordinate: Codable {
 
     public enum CodingKeys: CodingKey {
-        case body
+        case body //remove this, it causes issues, we will handle in init
         case date
         case longitude
         case latitude
@@ -108,19 +108,19 @@ extension Coordinate: Codable {
         sidereal = try container.decode(ZodiacCoordinate.self, forKey: .siderealCoordinate)
 
         //This is a workaround for the type erasure
-        let bodyInt = try container.decode(Int32.self, forKey: .body)
+        let bodyInt = try container.decode(Int32.self, forKey: .body) //decode the ipl
         if let planet = Planet(rawValue: bodyInt) {
-            body = planet
+            body = planet as! T
         } else if let node = LunarNorthNode(rawValue: bodyInt){
-            body = node
+            body = node as! T
         } else {
-            body =  try container.decode(FixedStar.self, forKey: .body) //decode as best you can
+            body =  try container.decode(FixedStar.self, forKey: .body) as! T //decode as best you can
         }
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(body.ipl, forKey: .body)
+        try container.encode(body.ipl, forKey: .body) //encode the ipl
         try container.encode(date, forKey: .date)
         try container.encode(longitude, forKey: .longitude)
         try container.encode(latitude, forKey: .latitude)

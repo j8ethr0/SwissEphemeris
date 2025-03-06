@@ -1,49 +1,38 @@
-//
-//  FixedStar.swift
-//  
-//
-//  Created by Vincent Smithers on 24.03.21.
-//
-
 import Foundation
 
-///
-public enum FixedStar: String, CaseIterable {
-	///
-	case galacticCenter
-	///
-	case aldebaran
-	///
-	case antares
-	///
-	case regulus
-	///
-	case sirius
-	///
-	case spica
-	///
-	case algol
-	///
-	case rigel
-	///
-	case altair
-	///
-	case capella
-	///
-	case arcturus
-	///
-	case procyon
-	///
-	case castor
-	///
-	case pollux
-	///
-	case betelgeuse
+/// Models a fixed star.
+public struct FixedStar: Codable {
+
+    /// The fixed star name.
+    public let rawValue: String
+
+    /// Creates a `FixedStar`
+    /// - Parameter star: The star.
+    public init(_ star: String) {
+        rawValue = star
+    }
 }
 
-// MARK: CelestialBody Conformance
+// MARK: - Equatable Conformance
+
+extension FixedStar: Equatable {
+    public static func == (lhs: FixedStar, rhs: FixedStar) -> Bool {
+        lhs.rawValue == rhs.rawValue
+    }
+}
+
+//MARK: Celestial body
 
 extension FixedStar: CelestialBody {
-	public var value: String { rawValue }
-}
+    public var ipl: Int32 {
+        0 //fixed stars do not have ipl
+    }
 
+    public var name: String {
+        rawValue
+    }
+    
+    public static var allCases: [FixedStar] { //add all cases for consistency, no stars for now.
+        []
+    }
+}

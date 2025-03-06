@@ -6,7 +6,11 @@ public enum LunarSouthNode: Int32, CaseIterable, Hashable, CelestialBody { //MAK
     case meanNode = 10
     case trueNode
 
-    public init(nodeCoordinate: Coordinate) { //KEEP FOR REFERENCE
+     public var ipl: Int32 { rawValue + 1 } //KEEP
+
+    public var name: String { "Lunar South Node" } //ADD
+
+    public init(nodeCoordinate: Coordinate<LunarNorthNode>) { //KEEP FOR REFERENCE
         let val = nodeCoordinate.longitude + 180
         if val >= 360 {
             self = .trueNode // Dummy values
@@ -14,9 +18,4 @@ public enum LunarSouthNode: Int32, CaseIterable, Hashable, CelestialBody { //MAK
             self = .meanNode// Dummy values
         }
     }
-
-    public var ipl: Int32 { //CELESTIAL BODY
-        rawValue + 1
-    }
-     public var name: String { "Lunar South Node" } //ADD NAME
 }
