@@ -23,11 +23,11 @@ public struct PlanetsRequest: BatchRequest {
             // Capture 'body' and 'intervalJd' directly, NOT self
             let localBody = self.body
 
-            for julianDay in stride(from: startJd, through: endJd, by: intervalJd) {
+            for julianDay in stride(from: startJd, through: endJd, by: intervalJd) { //removed strideable
                 group.addTask {
                     let date = Date(julianDay: julianDay) //removed strideable, uses extension
                     // Use localBody here
-                    return Coordinate(body: localBody, date: date) //removed try
+                    return try? Coordinate(body: localBody, date: date)
                 }
             }
 

@@ -14,17 +14,17 @@ public protocol BatchRequest {
 }
 
 public extension BatchRequest {
-    func fetch(start: Date, end: Date, interval: TimeInterval) async -> [Coordinate<Body>] {
+     func fetch(start: Date, end: Date, interval: TimeInterval) async -> [Coordinate<Body>] {
         let startJd = start.julianDate()
         let endJd = end.julianDate()
-        let intervalJd = interval / (24 * 60 * 60) // Convert seconds to Julian Day fraction
+        let intervalJd = interval / (24 * 60 * 60)
 
         return await withTaskGroup(of: Coordinate<Body>?.self, returning: [Coordinate<Body>].self) { group in
             var results: [Coordinate<Body>] = []
             for julianDay in stride(from: startJd, through: endJd, by: intervalJd) { //removed strideable
                 group.addTask {
-                    let date = Date(julianDay: julianDay) //Uses date extension
-                    return Coordinate(body: self.body, date: date) //remove try
+                    let date = Date(julianDay: julianDay) //removed strideable, uses extension
+                    return try? Coordinate(body: self.body, date: date)
                 }
             }
 
