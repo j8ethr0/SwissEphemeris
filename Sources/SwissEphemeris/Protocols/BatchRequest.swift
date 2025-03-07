@@ -11,6 +11,7 @@ public protocol BatchRequest {
     ///   - end: The end of the data range.
     ///   - interval: The interval between each data point.
     func fetch(start: Date, end: Date, interval: TimeInterval) async -> [Coordinate<Body>]
+<<<<<<< HEAD
 }
 
 public extension BatchRequest {
@@ -36,4 +37,6 @@ public extension BatchRequest {
             return results
         }
     }
+=======
+>>>>>>> baefa445d9684a077d97dca42520524d031daa76
 }

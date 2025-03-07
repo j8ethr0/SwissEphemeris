@@ -1,8 +1,13 @@
 import Foundation
 
 /// Models the nine celestial objects usually considered to be planets in astrological systems.
+<<<<<<< HEAD
 /// The raw `Int32` values map to the IPL planetary bodies.
 public enum Planet: Int32, CaseIterable, Codable, Hashable, CelestialBody { // Added `Codable` & `Hashable`
+=======
+/// The the raw `Int32` values map to the IPL planetary bodies.
+public enum Planet: Int32, CaseIterable, Hashable, CelestialBody { //KEEP HASHABLE CELESTIALBODY
+>>>>>>> baefa445d9684a077d97dca42520524d031daa76
     case sun
     case moon
     case mercury
@@ -51,4 +56,10 @@ public enum Planet: Int32, CaseIterable, Codable, Hashable, CelestialBody { // A
         case .pluto: return "♇ Pluto"
         }
     }
+<<<<<<< HEAD
+=======
+
+    public var ipl: Int32 { rawValue } //KEEP
+    public var name: String { formatted } //KEEP
+>>>>>>> baefa445d9684a077d97dca42520524d031daa76
 }
