@@ -1,54 +1,40 @@
 import Foundation
+import CSwissEphemeris // ✅ Ensure the correct import
 
-/// Models the nine celestial objects usually considered to be planets in astrological systems.
-/// The raw `Int32` values map to the IPL planetary bodies.
-public enum Planet: Int32, CaseIterable, Codable, Hashable, CelestialBody { // Added `Codable` & `Hashable`
-    case sun
-    case moon
-    case mercury
-    case venus
-    case mars
-    case jupiter
-    case saturn
-    case uranus
-    case neptune
-    case pluto
+public enum Planet: Int32, CaseIterable, Codable, Hashable, CelestialBody {
+    case sun = 0, moon, mercury, venus, mars, jupiter, saturn, uranus, neptune, pluto, northNode, southNode
 
-    /// The IPL body number (Required by CelestialBody)
-    public var ipl: Int32 { self.rawValue }
-
-    /// The name property required by `CelestialBody`
-    public var name: String { self.formatted }
-
-    /// The symbol commonly associated with the planet.
-    public var symbol: String {
+    public var ipl: Int32 { // ✅ Required by `CelestialBody`
         switch self {
-        case .sun: return "☉"
-        case .moon: return "☾"
-        case .mercury: return "☿"
-        case .venus: return "♀"
-        case .mars: return "♂︎"
-        case .jupiter: return "♃"
-        case .saturn: return "♄"
-        case .uranus: return "♅"
-        case .neptune: return "♆"
-        case .pluto: return "♇"
+        case .sun: return SE_SUN
+        case .moon: return SE_MOON
+        case .mercury: return SE_MERCURY
+        case .venus: return SE_VENUS
+        case .mars: return SE_MARS
+        case .jupiter: return SE_JUPITER
+        case .saturn: return SE_SATURN
+        case .uranus: return SE_URANUS
+        case .neptune: return SE_NEPTUNE
+        case .pluto: return SE_PLUTO
+        case .northNode: return SE_TRUE_NODE
+        case .southNode: return -SE_TRUE_NODE
         }
     }
 
-    /// The name of the planet formatted with the `symbol`.
-    public var formatted: String {
+    public var name: String { // ✅ Required by `CelestialBody`
         switch self {
-        case .sun: return "☉ Sun"
-        case .moon: return "☾ Moon"
-        case .mercury: return "☿ Mercury"
-        case .venus: return "♀ Venus"
-        case .mars: return "♂️ Mars"
-        case .jupiter: return "♃ Jupiter"
-        case .saturn: return "♄ Saturn"
-        case .uranus: return "♅ Uranus"
-        case .neptune: return "♆ Neptune"
-        case .pluto: return "♇ Pluto"
+        case .sun: return "Sun"
+        case .moon: return "Moon"
+        case .mercury: return "Mercury"
+        case .venus: return "Venus"
+        case .mars: return "Mars"
+        case .jupiter: return "Jupiter"
+        case .saturn: return "Saturn"
+        case .uranus: return "Uranus"
+        case .neptune: return "Neptune"
+        case .pluto: return "Pluto"
+        case .northNode: return "North Node"
+        case .southNode: return "South Node"
         }
     }
 }
