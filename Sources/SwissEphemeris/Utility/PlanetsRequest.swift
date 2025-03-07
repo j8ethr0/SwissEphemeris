@@ -1,61 +1,42 @@
-//
-//  PlanetsRequest.swift
-//  
-//
-//  Created by Vincent on 6/29/21.
-//
-
 import Foundation
 
-/// A `BatchRequest` for a collection of `Planet` `Coordinates`.
-final public class PlanetsRequest: BatchRequest {
-    
-    /// The `Planet` to request.
-    private let body: Planet
-    public typealias EphemerisItem = Coordinate<Planet>
-    public let datesThreshold = 478
-    
+/// Models a planets request for batch requests.
+public struct PlanetsRequest: BatchRequest {
+    public typealias Body = Planet
+
+    public let body: Planet
+
     /// Creates an instance of `PlanetsRequest`.
-    /// - Parameter body: The planet to request.
+    /// - Parameter body: The `Planet`.
     public init(body: Planet) {
         self.body = body
     }
-	
-	@available(macOS 12.0.0, *)
-	public func fetch(start: Date, end: Date, interval: TimeInterval = 60.0) async -> [EphemerisItem] {
-		var coordinates = [EphemerisItem]()
-		var dates = dates(for: start, end: end, interval: interval)
-		let stream = AsyncStream<[EphemerisItem]> {
-			guard !dates.isEmpty else { return nil }
-			do {
-				try await Task.sleep(nanoseconds: 1)
-			} catch {
-				return nil
-			}
-			let batch = dates.removeFirst()
-			return batch.map { EphemerisItem(body: self.body, date: $0) }
-		}
-		for await items in stream {
-			coordinates.append(contentsOf: items)
-		}
-		return coordinates
-	}
-    
-	@available(*, deprecated, renamed: "fetch(start:end:interval:_:)")
-    public func fetch(start: Date, end: Date, interval: TimeInterval = 60.0, _ closure: ([EphemerisItem]) -> Void) {
-        var coordinates = [EphemerisItem]()
-        let group = DispatchGroup()
-        func execute(batches: [[Date]], _ closure: ([EphemerisItem]) -> Void) {
-            guard let batch = batches.first else {
-                closure(coordinates)
-                return
+
+    public func fetch(start: Date, end: Date, interval: TimeInterval) async -> [Coordinate<Planet>] { // Added 'public'
+        let startJd = start.julianDate()
+        let endJd = end.julianDate()
+        let intervalJd = interval / (24 * 60 * 60) // Convert seconds to Julian Day fraction
+
+        return await withTaskGroup(of: Coordinate<Planet>?.self, returning: [Coordinate<Planet>].self) { group in
+            var results: [Coordinate<Planet>] = []
+
+            // Capture 'body' and 'intervalJd' directly, NOT self
+            let localBody = self.body
+
+            for julianDay in stride(from: startJd, through: endJd, by: intervalJd) {
+                group.addTask {
+                    let date = Date(julianDay: julianDay) //removed strideable, uses extension
+                    // Use localBody here
+                    return Coordinate(body: localBody, date: date) //removed try
+                }
             }
-            group.enter()
-            let c = batch.map { EphemerisItem(body: body, date: $0) }
-            coordinates.append(contentsOf: c)
-            group.leave()
-            execute(batches: Array(batches.dropFirst()), closure)
+
+            for await result in group {
+                if let result = result {
+                    results.append(result)
+                }
+            }
+            return results
         }
-        execute(batches: dates(for: start, end: end, interval: interval), closure)
     }
 }
