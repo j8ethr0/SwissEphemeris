@@ -1,17 +1,23 @@
+//
+//  JPLFileManager.swift
+//  
+//
+//  Created by Vincent Smithers on 06.03.21.
+//
+
 import Foundation
-import CSwissEphemeris // Import the C library
 
-/// The file manager for the JPL data files.
-public class JPLFileManager {
-    private static let fileManager = FileManager.default
-    private static let jplDataPath = "JPL"
+import CSwissEphemeris
 
-    private static var jplPath: String { // Make this a computed property
-        Bundle.main.resourceURL?.appendingPathComponent(jplDataPath, isDirectory: true).path ?? ""
-    }
-
-    /// Sets the path to the JPL data file
-    public static func setEphemerisPath(path: String = jplPath) { // Use the computed property
-        set_ephe_path_(path) // Correct C function call
-    }
+/// Utility class for setting the path to the ephemeris files.
+public final class JPLFileManager {
+	
+	/// The `Bundle.module` location of the JPL files.
+	public static let resourcePath = Bundle.module.resourcePath
+	
+	/// Sets the ephemeris path.
+	/// - Parameter path: The  path of the ephemeris files. The default value is `resourcePath`.
+	public static func setEphemerisPath(path: String? = resourcePath) {
+		swe_set_ephe_path(strdup(path))
+	}
 }

@@ -11,7 +11,6 @@ public struct PlanetsRequest: BatchRequest {
     public init(body: Planet) {
         self.body = body
     }
-<<<<<<< HEAD
 
     public func fetch(start: Date, end: Date, interval: TimeInterval) async -> [Coordinate<Planet>] { // Added 'public'
         let startJd = start.julianDate()
@@ -40,6 +39,4 @@ public struct PlanetsRequest: BatchRequest {
             return results
         }
     }
-=======
->>>>>>> baefa445d9684a077d97dca42520524d031daa76
 }
